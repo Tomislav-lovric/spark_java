@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 @RequestMapping(path = "/api/v1/image")
 @RequiredArgsConstructor
 public class ImageController {
+    //simple image controller, only thing to note here
+    //is we always get token out of header which we will use in
+    //our image service for our operations
 
     private final ImageService service;
 

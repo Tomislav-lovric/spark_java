@@ -27,9 +27,11 @@ public class ImageService {
     private final JwtService jwtService;
 
     public Image getImage(String filename, String bearerToken) {
+        //extract username (email) out of token and fetch user out of db with it
         String username = jwtService.extractUsername(bearerToken.substring(7));
         var user = userRepository.findUserByEmail(username);
 
+        //then return image if it exists else throw our custom exception
         return imageRepository.findByFilenameAndUser(filename, user)
                 .orElseThrow(() -> new ImageNotFoundException(
                         "Image " + filename + " does not exist"
@@ -37,17 +39,21 @@ public class ImageService {
     }
 
     public ImageResponse uploadImage(MultipartFile file, String bearerToken) throws IOException {
+        //extract username (email) out of token and fetch user out of db with it
         String username = jwtService.extractUsername(bearerToken.substring(7));
         var user = userRepository.findUserByEmail(username);
 
+        //check if file provided is image, if not throw exp
         if (!file.getContentType().startsWith("image")) {
             throw new FileNotAnImageException("File you are trying to upload is not an image");
         }
 
+        //check if image exists, if not throw exp
         if (imageRepository.existsByFilenameAndUser(file.getOriginalFilename(), user)) {
             throw new ImageAlreadyExistsException("Image with that filename already exists");
         }
 
+        //if it does exist, build image and save it to our db
         var image = Image.builder()
                 .filename(file.getOriginalFilename())
                 .mimeType(file.getContentType())
@@ -59,6 +65,9 @@ public class ImageService {
 
         imageRepository.save(image);
 
+        //then build our response and return it to user
+        //our response will contain link which user can use to
+        //get image
         return ImageResponse.builder()
                 .filename(image.getFilename())
                 .size(file.getSize())
@@ -69,6 +78,7 @@ public class ImageService {
 
     @Transactional
     public ImageResponse changeImage(String filename, MultipartFile file, String bearerToken) throws IOException {
+        //same as before
         String username = jwtService.extractUsername(bearerToken.substring(7));
         var user = userRepository.findUserByEmail(username);
 
@@ -80,13 +90,17 @@ public class ImageService {
             throw new FileNotAnImageException("File you are trying to upload is not an image");
         }
 
+        //we also check if new image already exists in our db
+        //if it does throw exp
         if (imageRepository.existsByFilenameAndUser(file.getOriginalFilename(), user)) {
             throw new ImageAlreadyExistsException("Image " + file.getOriginalFilename() + " already exists");
         }
 
+        //if everything is ok get image
         var optionalImage = imageRepository.findByFilenameAndUser(filename, user);
         var image = optionalImage.get();
 
+        //and change it
         image.setFilename(file.getOriginalFilename());
         image.setMimeType(file.getContentType());
         image.setData(file.getBytes());
@@ -116,6 +130,10 @@ public class ImageService {
         return filename + " image deleted";
     }
 
+    //method for creating link which user uses to get an image
+    //simple method which gets current url and replaces its path
+    //with our new provided path. We also get rid of all query strings (we need
+    //this part because of mappings which require query strings)
     private String createImageLink(String filename) {
         return ServletUriComponentsBuilder.fromCurrentRequest()
                 .replacePath("/api/v1/image/" + filename)
@@ -124,6 +142,7 @@ public class ImageService {
     }
 
     public List<ImageResponse> getImagesByDateTimeAndPage(LocalDateTime date, Integer page, String bearerToken) {
+        //pretty much same stuff as before
         String username = jwtService.extractUsername(bearerToken.substring(7));
         var user = userRepository.findUserByEmail(username);
 
@@ -131,6 +150,10 @@ public class ImageService {
             throw new ImageNotFoundException("No images found");
         }
 
+        //todo maybe we should add check for page as well???
+
+        //we then create pageable, so we can create paging
+        //(used 2 items per page for testing purposes)
         Pageable pageable = PageRequest.of(page, 2);
         List<Image> images = imageRepository.findByCreatedAtAndUser(date, user, pageable);
 
@@ -143,6 +166,7 @@ public class ImageService {
                         .build()).toList();
     }
 
+    //pretty much same method as above only with sorting
     public List<ImageResponse> getImagesByDateTimeAndPageAndSort(LocalDateTime date, Integer page, String bearerToken, String order) {
         String username = jwtService.extractUsername(bearerToken.substring(7));
         var user = userRepository.findUserByEmail(username);
@@ -154,6 +178,8 @@ public class ImageService {
         Pageable pageable = PageRequest.of(page, 2);
         List<Image> images;
 
+        //we check what kind of sort order user wants (asc or desc)
+        //and return the response based on provided order
         if (order.equalsIgnoreCase("asc")) {
             images = imageRepository.findByCreatedAtAndUserOrderBySizeAsc(date, user, pageable);
             return images.stream()
@@ -174,9 +200,11 @@ public class ImageService {
                             .build()).toList();
         }
 
+        //of sort order is neither asc nor desc throw custom error
         throw new InvalidSortOrderException("Invalid sort order. Only use ASC or DESC");
     }
 
+    //same as above sorting only for all images
     public List<ImageResponse> sortAllImages(String order, String bearerToken) {
         String username = jwtService.extractUsername(bearerToken.substring(7));
         var user = userRepository.findUserByEmail(username);

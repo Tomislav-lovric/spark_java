@@ -18,6 +18,10 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
+    //in here we disable csrf for this project, authorize http request for pattern
+    //.../user/... and require authorization for every other path
+    //then we set our session management policy
+    //and set our jwt auth filter
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http

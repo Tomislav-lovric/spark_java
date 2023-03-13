@@ -13,6 +13,8 @@ import java.io.UnsupportedEncodingException;
 @RequiredArgsConstructor
 public class UserController {
 
+    //standard controller with @Valid annotation for our validations
+
     private final UserService service;
 
     @PostMapping("/register")

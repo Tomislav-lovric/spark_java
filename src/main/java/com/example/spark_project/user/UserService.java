@@ -29,13 +29,15 @@ public class UserService {
     private final JavaMailSender mailSender;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        //check if user with that email already exists
         if (repository.existsByEmail(request.getEmail())) {
             throw new UserAlreadyExistsException("User with that email already exists");
         }
+        //check if passwords match
         if (!request.getPassword().equals(request.getRepeatPassword())) {
             throw new InvalidRepeatedPasswordException("Password do not match");
         }
-
+        //if both of those are ok build user out of the request
         var user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -44,20 +46,22 @@ public class UserService {
                 .repeatPassword(passwordEncoder.encode(request.getRepeatPassword()))
                 .role(Role.USER)
                 .build();
-
+        //and save it to our db
         repository.save(user);
-
+        //then build token out of that user
         var jwtToken = jwtService.generateToken(user);
-
+        //and send it back to him(user)
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
     }
 
     public AuthenticationResponse login(LoginRequest request) {
+        //check if user with that email already exists
         if (!repository.existsByEmail(request.getEmail())) {
             throw new UsernameNotFoundException("User with " + request.getEmail() + " not found");
         }
+        //if he does authenticate him
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -128,6 +132,4 @@ public class UserService {
         repository.save(user);
     }
 
-    //make sure when updating password to update resetToken to null,
-    //so it can't be used again
 }

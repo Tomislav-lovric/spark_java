@@ -17,6 +17,8 @@ public class NewPasswordRequest {
                     " one number, one special character, and it should contain 8 to 16 character")
     private String password;
 
+    //we probably don't need to use pattern here since we are checking if password
+    //equals repeatPassword anyway
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&.])[A-Za-z\\d@$!%*?&.]{8,16}$",
             message = "Repeated password should contain at least one lower case letter, one upper case letter," +
                     " one number, one special character, and it should contain 8 to 16 character")

@@ -93,6 +93,10 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
+    //we use email rather than username for this project
+    //so everytime some variable or method says username
+    //we actually mean email (we don't change it because
+    //of spring security, although we could)
     @Override
     public String getUsername() {
         return email;
