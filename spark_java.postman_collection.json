@@ -1,0 +1,461 @@
+{
+	"info": {
+		"_postman_id": "1f7fe9c1-81a7-4cb7-87b5-53b4a25b9c3d",
+		"name": "spark_java",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstName\": \"test\",\r\n    \"lastName\": \"test\",\r\n    \"email\": \"test.123@gmail.com\",\r\n    \"password\": \"Test.123\",\r\n    \"repeatPassword\": \"Test.123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/user/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test.123@gmail.com\",\r\n    \"password\": \"Test.123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/user/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Forgot password",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test.123@gmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/user/forgot-password",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"forgot-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload one image",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYWlsemFiYWNpdC4xMjNAZ21haWwuY29tIiwiaWF0IjoxNjc4NjM5NzE5LCJleHAiOjE2Nzg2NDMzMTl9.AHJIYv7q3_UtbASygUeNhhwnjYU0S2GBIfxRkCVzZc8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Tomo/Desktop/Java Stuff/security4/src/main/java/com/example/security4/Rotating_earth_(large).gif",
+							"disabled": true
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Tomo/Desktop/Java Stuff/security4/src/main/java/com/example/security4/Slika067.jpg"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Tomo/Desktop/Java Stuff/security4/src/main/java/com/example/security4/test.png",
+							"disabled": true
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Tomo/Desktop/CV.docx",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/image/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"image",
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload multiple images",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYWlsemFiYWNpdC4xMjNAZ21haWwuY29tIiwiaWF0IjoxNjc4NjQwODczLCJleHAiOjE2Nzg2NDQ0NzN9.fa8QUcc_-NALTlJgHn0Tv_YoS8Vx85uUzu3PLQog6jA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "files",
+							"type": "file",
+							"src": "/C:/Users/Tomo/Desktop/Java Stuff/security4/src/main/java/com/example/security4/Rotating_earth_(large).gif"
+						},
+						{
+							"key": "files",
+							"type": "file",
+							"src": "/C:/Users/Tomo/Desktop/Java Stuff/security4/src/main/java/com/example/security4/test.png"
+						},
+						{
+							"key": "files",
+							"type": "file",
+							"src": "/C:/Users/Tomo/Desktop/Java Stuff/security4/src/main/java/com/example/security4/Slika078.jpg"
+						},
+						{
+							"key": "files",
+							"type": "file",
+							"src": "/C:/Users/Tomo/Desktop/Java Stuff/security4/src/main/java/com/example/security4/Slika079.jpg"
+						},
+						{
+							"key": "files",
+							"type": "file",
+							"src": "/C:/Users/Tomo/Desktop/Java Stuff/security4/src/main/java/com/example/security4/Slika080.jpg"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/image/upload_multi",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"image",
+						"upload_multi"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get one image example",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYWlsemFiYWNpdC4xMjNAZ21haWwuY29tIiwiaWF0IjoxNjc4MjA4NjMwLCJleHAiOjE2NzgyMDg2OTB9.Jg4fj3BHsof__xsN9RN9Bw2Z113IbFtqYup8pmH3sH0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/image/Slika067.jpg",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"image",
+						"Slika067.jpg"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get multiple images using date example",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYWlsemFiYWNpdC4xMjNAZ21haWwuY29tIiwiaWF0IjoxNjc4NjQwODczLCJleHAiOjE2Nzg2NDQ0NzN9.fa8QUcc_-NALTlJgHn0Tv_YoS8Vx85uUzu3PLQog6jA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/image/?date=2023-03-12T18:08:04&page=0&order=desc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"image",
+						""
+					],
+					"query": [
+						{
+							"key": "date",
+							"value": "2023-03-12T18:08:04"
+						},
+						{
+							"key": "page",
+							"value": "0"
+						},
+						{
+							"key": "order",
+							"value": "desc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sort all images",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYWlsemFiYWNpdC4xMjNAZ21haWwuY29tIiwiaWF0IjoxNjc4NjM4ODA0LCJleHAiOjE2Nzg2NDI0MDR9.Q-v_N26rJmxNF24wi8we6ipHvZuzT6pNHBeuT_uqP78",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/image/sort/asc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"image",
+						"sort",
+						"asc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete image example",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYWlsemFiYWNpdC4xMjNAZ21haWwuY29tIiwiaWF0IjoxNjc4NTUwOTY1LCJleHAiOjE2Nzg1NTQ1NjV9.e969yhtkFxrAQt0_l4tONWvWNUWLR2mA83moRPEW6dU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/image/test.png",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"image",
+						"test.png"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change image example",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYWlsemFiYWNpdC4xMjNAZ21haWwuY29tIiwiaWF0IjoxNjc4NTUwOTY1LCJleHAiOjE2Nzg1NTQ1NjV9.e969yhtkFxrAQt0_l4tONWvWNUWLR2mA83moRPEW6dU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Tomo/Desktop/Java Stuff/security4/src/main/java/com/example/security4/Slika067.jpg"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Tomo/Desktop/Java Stuff/security4/src/main/java/com/example/security4/Slika078.jpg",
+							"disabled": true
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Tomo/Desktop/Java Stuff/security4/src/main/java/com/example/security4/bez.txt",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/image/test.png",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"image",
+						"test.png"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Reset password example",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"password\": \"Test1.123\",\r\n    \"repeatPassword\": \"Test.123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/user/reset-password?resetToken=6cb87c86-86e3-4ad4-8dba-eaa7f2a1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"reset-password"
+					],
+					"query": [
+						{
+							"key": "resetToken",
+							"value": "6cb87c86-86e3-4ad4-8dba-eaa7f2a1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
