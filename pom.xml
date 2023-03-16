@@ -90,6 +90,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>spark_java</finalName>
 	</build>
 
 </project>
