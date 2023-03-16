@@ -19,7 +19,7 @@ POSTMAN
 Before starting you will need to create postgres db named spark_java (or you can name it differently, in that case though you will also need to change the name of the db in application.yml)
 
 ## Running the application
-Open application folder using some java IDE (like intellij or eclipse) and run it through said IDE
+Open application folder using some java IDE (like intellij or eclipse) and run it through said IDE or you can use docker (docker-compose up -d)
 
 ## Testing Endpoints
 There is postman collection file in main application folder which you can import and use to test different endpoints. Some endpoints are just examples and you will need to change stuff in them for yourself (like name of the image to test get image endpoint etc.)
@@ -27,8 +27,6 @@ There is postman collection file in main application folder which you can import
 # IMPORTANT ABOUT SENDING EMAILS FOR PASSWORD RESET
 
 You need to add your own gmail adress and app password to be able to send emails to the user, you need to add them in application.yml, the lines where you need to add them are commented so they are easy to spot. (for how to create app password follow these guidlines https://support.google.com/accounts/answer/185833?hl=en#:%7E:text=An%20App%20Password%20is%20a,2%2DStep%20Verification%20turned%20on.).
-
-# Todo docker
 
 ## Authors
 
