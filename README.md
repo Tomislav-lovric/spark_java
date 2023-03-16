@@ -8,13 +8,17 @@ You can register user (every field is validated btw) and login to get JWT token 
 ## commentedCode branch
 I added this branch mainly so the code doesn't look messy and unreadable because i made comments for most lines of code
 
-### Prerequisites
+## Prerequisites
 
 JAVA
+
+IDE (IntelliJ or eclipse)
 
 POSTGRESQL
 
 POSTMAN
+
+DOCKER (optional)
 
 # How to use app
 
