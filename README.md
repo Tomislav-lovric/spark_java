@@ -5,6 +5,9 @@ Using Java (Spring Boot framework) and PostgreSQL database, implemented REST API
 ## About application
 You can register user (every field is validated btw) and login to get JWT token which will allow you/user to add one photo, add multiple photos, get one photo, get multiple photos based on their created date (and sort them by size if you wish to do so), sort all photos by size, update one photo and delete one photo. (just like in registration most stuff is validated ex. you can only upload files which are images, you can't upload same image twice etc. There are comments in the app [commentedCode branch only] which explain pretty much everything you need to know about the app)
 
+## commentedCode branch
+I added this branch mainly so the code doesn't look messy and unreadable because i made comments for most lines of code
+
 ### Prerequisites
 
 JAVA
