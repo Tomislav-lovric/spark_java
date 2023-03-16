@@ -19,7 +19,7 @@ POSTMAN
 Before starting you will need to create postgres db named spark_java (or you can name it differently, in that case though you will also need to change the name of the db in application.yml)
 
 ## Running the application
-You can open application folder using some java IDE (like intellij or eclipse) and run it through said IDE and then use postman to test endpoints, or you can run it with jar file
+Open application folder using some java IDE (like intellij or eclipse) and run it through said IDE
 
 ## Testing Endpoints
 There is postman collection file in main application folder which you can import and use to test different endpoints. Some endpoints are just examples and you will need to change stuff in them for yourself (like name of the image to test get image endpoint etc.)
