@@ -1,15 +1,20 @@
 package com.example.spark_project.user;
 
+import com.example.spark_project.exception.UserAlreadyExistsException;
 import com.example.spark_project.security.JwtService;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,6 +36,9 @@ class UserServiceTest {
 
     @Mock
     private JwtService jwtService;
+
+    @Mock
+    private JavaMailSender mailSender;
 
     @InjectMocks
     private UserService userService;
@@ -81,6 +89,17 @@ class UserServiceTest {
     }
 
     @Test
+    void testRegisterShouldThrowUserAlreadyExistsException() {
+        // when
+        when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
+
+        // then
+        assertThatThrownBy(() -> userService.register(registerRequest))
+                .isInstanceOf(UserAlreadyExistsException.class)
+                .hasMessageContaining("User with that email already exists");
+    }
+
+    @Test
     void testLoginShouldReturnAuthenticationResponse() {
         // when
         when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(true);
@@ -95,18 +114,44 @@ class UserServiceTest {
     }
 
     @Test
-    void testForgotPasswordShouldReturnVoid() {
+    void testForgotPasswordShouldReturnVoid() throws MessagingException, UnsupportedEncodingException {
+        // given
+        PasswordResetRequest request = PasswordResetRequest.builder().email("john_evans@gmail.com").build();
+        MimeMessage mimeMessage = mock(MimeMessage.class);
+
         // when
+        when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
+        when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+
+        userService.forgotPassword(request);
 
         // then
-
+        verify(userRepository, times(1)).existsByEmail(request.getEmail());
+        verify(userRepository, times(1)).findByEmail(request.getEmail());
+        verify(userRepository, times(1)).save(user);
     }
 
     @Test
     void testResetPasswordShouldReturnVoid() {
+        // given
+        NewPasswordRequest request = NewPasswordRequest.builder()
+                .password("NewTest.123")
+                .repeatPassword("NewTest.123")
+                .build();
+        String resetToken = UUID.randomUUID().toString().replaceAll("_", "").substring(0, 32);
+
         // when
+        when(userRepository.existsByResetPasswordToken(resetToken)).thenReturn(true);
+        when(userRepository.findByResetPasswordToken(resetToken)).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(user);
+
+        userService.resetPassword(request, resetToken);
 
         // then
-
+        verify(userRepository, times(1)).existsByResetPasswordToken(resetToken);
+        verify(userRepository, times(1)).findByResetPasswordToken(resetToken);
+        verify(userRepository, times(1)).save(user);
     }
 }
