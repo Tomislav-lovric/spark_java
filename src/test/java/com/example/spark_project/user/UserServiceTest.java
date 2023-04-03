@@ -1,5 +1,7 @@
 package com.example.spark_project.user;
 
+import com.example.spark_project.exception.InvalidPasswordResetTokenException;
+import com.example.spark_project.exception.InvalidRepeatedPasswordException;
 import com.example.spark_project.exception.UserAlreadyExistsException;
 import com.example.spark_project.security.JwtService;
 import jakarta.mail.MessagingException;
@@ -12,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.UnsupportedEncodingException;
@@ -100,6 +103,22 @@ class UserServiceTest {
     }
 
     @Test
+    void testRegisterShouldThrowInvalidRepeatedPasswordException() {
+        // given
+        String missMatchPassword = "Pass.123";
+        registerRequest.setRepeatPassword(missMatchPassword);
+
+        // when
+        when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
+
+        // then
+        assertThatThrownBy(() -> userService.register(registerRequest))
+                .isInstanceOf(InvalidRepeatedPasswordException.class)
+                .hasMessageContaining("Password do not match");
+    }
+
+    //TODO make login tests better
+    @Test
     void testLoginShouldReturnAuthenticationResponse() {
         // when
         when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(true);
@@ -111,6 +130,17 @@ class UserServiceTest {
         // then
         assertThat(response).isNotNull();
         assertThat(response.getToken()).isEqualTo("token");
+    }
+
+    @Test
+    void testLoginShouldThrowUsernameNotFoundException() {
+        // when
+        when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(false);
+
+        // then
+        assertThatThrownBy(() -> userService.login(loginRequest))
+                .isInstanceOf(UsernameNotFoundException.class)
+                .hasMessageContaining("User with " + loginRequest.getEmail() + " not found");
     }
 
     @Test
@@ -134,6 +164,20 @@ class UserServiceTest {
     }
 
     @Test
+    void testForgotPasswordShouldThrowUsernameNotFoundException() {
+        // given
+        PasswordResetRequest request = PasswordResetRequest.builder().email("john_evans@gmail.com").build();
+
+        // when
+        when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
+
+        // then
+        assertThatThrownBy(() -> userService.forgotPassword(request))
+                .isInstanceOf(UsernameNotFoundException.class)
+                .hasMessageContaining("User with that email does not exist");
+    }
+
+    @Test
     void testResetPasswordShouldReturnVoid() {
         // given
         NewPasswordRequest request = NewPasswordRequest.builder()
@@ -153,5 +197,41 @@ class UserServiceTest {
         verify(userRepository, times(1)).existsByResetPasswordToken(resetToken);
         verify(userRepository, times(1)).findByResetPasswordToken(resetToken);
         verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
+    void testResetPasswordShouldThrowInvalidPasswordResetTokenException() {
+        // given
+        NewPasswordRequest request = NewPasswordRequest.builder()
+                .password("NewTest.123")
+                .repeatPassword("NewTest.123")
+                .build();
+        String resetToken = UUID.randomUUID().toString().replaceAll("_", "").substring(0, 32);
+
+        // when
+        when(userRepository.existsByResetPasswordToken(resetToken)).thenReturn(false);
+
+        // then
+        assertThatThrownBy(() -> userService.resetPassword(request, resetToken))
+                .isInstanceOf(InvalidPasswordResetTokenException.class)
+                .hasMessageContaining("Invalid password reset token");
+    }
+
+    @Test
+    void testResetPasswordShouldThrowInvalidRepeatedPasswordException() {
+        // given
+        NewPasswordRequest request = NewPasswordRequest.builder()
+                .password("NewTest.123")
+                .repeatPassword("MissMatch.123")
+                .build();
+        String resetToken = UUID.randomUUID().toString().replaceAll("_", "").substring(0, 32);
+
+        // when
+        when(userRepository.existsByResetPasswordToken(resetToken)).thenReturn(true);
+
+        // then
+        assertThatThrownBy(() -> userService.resetPassword(request, resetToken))
+                .isInstanceOf(InvalidRepeatedPasswordException.class)
+                .hasMessageContaining("Passwords do not match");
     }
 }
