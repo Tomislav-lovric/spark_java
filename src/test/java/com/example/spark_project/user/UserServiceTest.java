@@ -14,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -79,16 +81,19 @@ class UserServiceTest {
 
     @Test
     void testRegisterShouldReturnAuthenticationResponse() {
+        // given
+        String token = "token";
+
         // when
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(jwtService.generateToken(any())).thenReturn("token");
+        when(jwtService.generateToken(any())).thenReturn(token);
 
         AuthenticationResponse response = userService.register(registerRequest);
 
         // then
         assertThat(response).isNotNull();
-        assertThat(response.getToken()).isEqualTo("token");
+        assertThat(response.getToken()).isEqualTo(token);
     }
 
     @Test
@@ -117,19 +122,29 @@ class UserServiceTest {
                 .hasMessageContaining("Password do not match");
     }
 
-    //TODO make login tests better
     @Test
     void testLoginShouldReturnAuthenticationResponse() {
+        // given
+        String token = "token";
+        Authentication authentication = mock(Authentication.class);
+
         // when
         when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(true);
+        when(authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(registerRequest.getEmail(), registerRequest.getPassword()))
+        ).thenReturn(authentication);
         when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(user));
-        when(jwtService.generateToken(any())).thenReturn("token");
+        when(jwtService.generateToken(any())).thenReturn(token);
 
         AuthenticationResponse response = userService.login(loginRequest);
 
         // then
         assertThat(response).isNotNull();
-        assertThat(response.getToken()).isEqualTo("token");
+        assertThat(response.getToken()).isEqualTo(token);
+
+        verify(authenticationManager).authenticate(
+                new UsernamePasswordAuthenticationToken(registerRequest.getEmail(), registerRequest.getPassword())
+        );
     }
 
     @Test
