@@ -3,6 +3,7 @@ package com.example.spark_project.image;
 import com.example.spark_project.exception.FileNotAnImageException;
 import com.example.spark_project.exception.ImageAlreadyExistsException;
 import com.example.spark_project.exception.ImageNotFoundException;
+import com.example.spark_project.exception.InvalidSortOrderException;
 import com.example.spark_project.security.JwtService;
 import com.example.spark_project.user.Role;
 import com.example.spark_project.user.User;
@@ -312,7 +313,7 @@ class ImageServiceTest {
     }
 
     @Test
-    void getImagesByDateTimeAndPageAndSort() {
+    void testGetImagesByDateTimeAndPageAndSortShouldReturn() {
         // given
 
         // when
@@ -321,11 +322,85 @@ class ImageServiceTest {
     }
 
     @Test
-    void sortAllImages() {
+    void testGetImagesByDateTimeAndPageAndSortShouldThrow() {
         // given
 
         // when
 
         // then
+    }
+
+    @Test
+    void testSortAllImagesShouldReturnImageResponseByASC() {
+        // given
+        // same as before for these two lines
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        String order = "ASC";
+
+        // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByUser(user)).thenReturn(true);
+        when(imageRepository.findByUserOrderBySizeAsc(user)).thenReturn(List.of(image));
+
+        List<ImageResponse> expected = imageService.sortAllImages(order, TOKEN);
+
+        // then
+        assertThat(expected).isNotNull();
+    }
+
+    @Test
+    void testSortAllImagesShouldReturnImageResponseByDESC() {
+        // given
+        // same as before for these two lines
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        String order = "DESC";
+
+        // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByUser(user)).thenReturn(true);
+        when(imageRepository.findByUserOrderBySizeDesc(user)).thenReturn(List.of(image));
+
+        List<ImageResponse> expected = imageService.sortAllImages(order, TOKEN);
+
+        // then
+        assertThat(expected).isNotNull();
+    }
+
+    @Test
+    void testSortAllImagesShouldThrowImageNotFoundException() {
+        // given
+        String order = "DESC";
+
+        // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByUser(user)).thenReturn(false);
+
+        // then
+        assertThatThrownBy(() -> imageService.sortAllImages(order, TOKEN))
+                .isInstanceOf(ImageNotFoundException.class)
+                .hasMessageContaining("No images found");
+    }
+
+    @Test
+    void testSortAllImagesShouldThrowInvalidSortOrderException() {
+        // given
+        String orderToFail = "fail";
+
+        // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByUser(user)).thenReturn(true);
+
+        // then
+        assertThatThrownBy(() -> imageService.sortAllImages(orderToFail, TOKEN))
+                .isInstanceOf(InvalidSortOrderException.class)
+                .hasMessageContaining("Invalid sort order. Only use ASC or DESC");
     }
 }
