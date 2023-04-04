@@ -291,7 +291,7 @@ class ImageServiceTest {
     }
 
     @Test
-    void getImagesByDateTimeAndPage() {
+    void testGetImagesByDateTimeAndPageShouldReturnImageResponseList() {
         // given
         // same as before for these two lines
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -310,28 +310,109 @@ class ImageServiceTest {
 
         // then
         assertThat(expected).isNotNull();
-    }
-
-    @Test
-    void testGetImagesByDateTimeAndPageAndSortShouldReturn() {
+    }@Test
+    void testGetImagesByDateTimeAndPageShouldThrowImageNotFoundException() {
         // given
+        LocalDateTime dateTime = LocalDateTime.now().withNano(0);
+        int page = 0;
 
         // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByCreatedAtAndUser(dateTime, user)).thenReturn(false);
 
         // then
+        assertThatThrownBy(() -> imageService.getImagesByDateTimeAndPage(dateTime, page, TOKEN))
+                .isInstanceOf(ImageNotFoundException.class)
+                .hasMessageContaining("No images found");
     }
 
     @Test
-    void testGetImagesByDateTimeAndPageAndSortShouldThrow() {
+    void testGetImagesByDateTimeAndPageAndSortShouldReturnImageResponseListByASC() {
         // given
+        // same as before for these two lines
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        String order = "ASC";
+        LocalDateTime dateTime = LocalDateTime.now().withNano(0);
+        int page = 0;
+        Pageable pageable = PageRequest.of(page, 2);
 
         // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByCreatedAtAndUser(dateTime, user)).thenReturn(true);
+        when(imageRepository.findByCreatedAtAndUserOrderBySizeAsc(dateTime, user, pageable)).thenReturn(List.of(image));
+
+        List<ImageResponse> expected = imageService.getImagesByDateTimeAndPageAndSort(dateTime,page, TOKEN, order);
 
         // then
+        assertThat(expected).isNotNull();
     }
 
     @Test
-    void testSortAllImagesShouldReturnImageResponseByASC() {
+    void testGetImagesByDateTimeAndPageAndSortShouldReturnImageResponseListByDESC() {
+        // given
+        // same as before for these two lines
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        String order = "DESC";
+        LocalDateTime dateTime = LocalDateTime.now().withNano(0);
+        int page = 0;
+        Pageable pageable = PageRequest.of(page, 2);
+
+        // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByCreatedAtAndUser(dateTime, user)).thenReturn(true);
+        when(imageRepository.findByCreatedAtAndUserOrderBySizeDesc(dateTime, user, pageable)).thenReturn(List.of(image));
+
+        List<ImageResponse> expected = imageService.getImagesByDateTimeAndPageAndSort(dateTime,page, TOKEN, order);
+
+        // then
+        assertThat(expected).isNotNull();
+    }
+
+    @Test
+    void testGetImagesByDateTimeAndPageAndSortShouldThrowImageNotFoundException() {
+        // given
+        LocalDateTime dateTime = LocalDateTime.now().withNano(0);
+        int page = 0;
+        String order = "DESC";
+
+        // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByCreatedAtAndUser(dateTime, user)).thenReturn(false);
+
+        // then
+        assertThatThrownBy(() -> imageService.getImagesByDateTimeAndPageAndSort(dateTime, page, TOKEN, order))
+                .isInstanceOf(ImageNotFoundException.class)
+                .hasMessageContaining("No images found");
+    }
+
+    @Test
+    void testGetImagesByDateTimeAndPageAndSortShouldThrowInvalidSortOrderException() {
+        // given
+        LocalDateTime dateTime = LocalDateTime.now().withNano(0);
+        int page = 0;
+        String orderToFail = "fail";
+
+        // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByCreatedAtAndUser(dateTime, user)).thenReturn(true);
+
+        // then
+        assertThatThrownBy(() -> imageService.getImagesByDateTimeAndPageAndSort(dateTime, page, TOKEN, orderToFail))
+                .isInstanceOf(InvalidSortOrderException.class)
+                .hasMessageContaining("Invalid sort order. Only use ASC or DESC");
+    }
+
+    @Test
+    void testSortAllImagesShouldReturnImageResponseListByASC() {
         // given
         // same as before for these two lines
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -352,7 +433,7 @@ class ImageServiceTest {
     }
 
     @Test
-    void testSortAllImagesShouldReturnImageResponseByDESC() {
+    void testSortAllImagesShouldReturnImageResponseListByDESC() {
         // given
         // same as before for these two lines
         MockHttpServletRequest request = new MockHttpServletRequest();
