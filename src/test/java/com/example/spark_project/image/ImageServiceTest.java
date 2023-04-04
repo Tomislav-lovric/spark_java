@@ -50,6 +50,7 @@ class ImageServiceTest {
     private Image image;
     private User user;
     private MockMultipartFile file;
+    private MockMultipartFile newFile;
 
     @BeforeEach
     void setUp() {
@@ -76,6 +77,13 @@ class ImageServiceTest {
         file = new MockMultipartFile(
                 "Earth",
                 "Earth.gif",
+                "image/gif",
+                image.getData()
+        );
+
+        newFile = new MockMultipartFile(
+                "Earth2",
+                "Earth2.gif",
                 "image/gif",
                 image.getData()
         );
@@ -176,21 +184,78 @@ class ImageServiceTest {
     }
 
     @Test
-    void testChangeImageShouldReturnImageResponse() {
+    void testChangeImageShouldReturnImageResponse() throws IOException {
         // given
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+        String filename = "Earth.gif";
 
         // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByFilenameAndUser(filename, user)).thenReturn(true);
+        when(imageRepository.existsByFilenameAndUser(newFile.getOriginalFilename(), user)).thenReturn(false);
+        when(imageRepository.findByFilenameAndUser(filename, user)).thenReturn(Optional.of(image));
+        when(imageRepository.save(any(Image.class))).thenReturn(image);
+
+        ImageResponse expected = imageService.changeImage(filename, newFile, TOKEN);
 
         // then
+        assertThat(expected).isNotNull();
     }
 
     @Test
-    void testChangeImageShouldThrow() {
+    void testChangeImageShouldThrowImageNotFoundException() {
         // given
+        String filename = "Earth.gif";
 
         // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByFilenameAndUser(filename, user)).thenReturn(false);
 
         // then
+        assertThatThrownBy(() -> imageService.changeImage(filename, newFile, TOKEN))
+                .isInstanceOf(ImageNotFoundException.class)
+                .hasMessageContaining("Image " + filename + " does not exist");
+    }
+
+    @Test
+    void testChangeImageShouldThrowFileNotAnImageException() {
+        // given
+        MockMultipartFile fileToFail = new MockMultipartFile(
+                "Earth",
+                "Earth.fail",
+                "fail",
+                image.getData()
+        );
+
+        // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByFilenameAndUser(fileToFail.getOriginalFilename(), user)).thenReturn(true);
+
+        // then
+        assertThatThrownBy(() -> imageService.changeImage(fileToFail.getOriginalFilename(),fileToFail, TOKEN))
+                .isInstanceOf(FileNotAnImageException.class)
+                .hasMessageContaining("File you are trying to upload is not an image");
+    }
+
+    @Test
+    void testChangeImageShouldThrowImageAlreadyExistsException() {
+        // given
+        String filename = "Earth.gif";
+
+        // when
+        when(jwtService.extractUsername(any())).thenReturn(user.getEmail());
+        when(userRepository.findUserByEmail(user.getEmail())).thenReturn(user);
+        when(imageRepository.existsByFilenameAndUser(filename, user)).thenReturn(true);
+        when(imageRepository.existsByFilenameAndUser(newFile.getOriginalFilename(), user)).thenReturn(true);
+
+        // then
+        assertThatThrownBy(() -> imageService.changeImage(filename, newFile, TOKEN))
+                .isInstanceOf(ImageAlreadyExistsException.class)
+                .hasMessageContaining("Image " + newFile.getOriginalFilename() + " already exists");
     }
 
     @Test
