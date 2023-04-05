@@ -88,6 +88,12 @@ class ImageServiceTest {
                 "image/gif",
                 image.getData()
         );
+
+        // These two lines are necessary for the createImageLink method
+        // Without them, we get the exception, specifically:
+        // java.lang.IllegalStateException: No current ServletRequestAttributes
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     }
 
     @Test
@@ -131,11 +137,6 @@ class ImageServiceTest {
     @Test
     void testUploadImageShouldReturnImageResponse() throws IOException {
         // given
-        // These two lines are necessary for the createImageLink method
-        // Without them, we get the exception, specifically:
-        // java.lang.IllegalStateException: No current ServletRequestAttributes
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
         String link = "http://localhost/api/v1/image/" + file.getOriginalFilename();
 
         // when
@@ -187,8 +188,6 @@ class ImageServiceTest {
     @Test
     void testChangeImageShouldReturnImageResponse() throws IOException {
         // given
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
         String filename = "Earth.gif";
 
         // when
@@ -293,9 +292,6 @@ class ImageServiceTest {
     @Test
     void testGetImagesByDateTimeAndPageShouldReturnImageResponseList() {
         // given
-        // same as before for these two lines
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
         LocalDateTime dateTime = LocalDateTime.now().withNano(0);
         Pageable pageable = PageRequest.of(0, 2);
@@ -330,9 +326,6 @@ class ImageServiceTest {
     @Test
     void testGetImagesByDateTimeAndPageAndSortShouldReturnImageResponseListByASC() {
         // given
-        // same as before for these two lines
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
         String order = "ASC";
         LocalDateTime dateTime = LocalDateTime.now().withNano(0);
@@ -354,9 +347,6 @@ class ImageServiceTest {
     @Test
     void testGetImagesByDateTimeAndPageAndSortShouldReturnImageResponseListByDESC() {
         // given
-        // same as before for these two lines
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
         String order = "DESC";
         LocalDateTime dateTime = LocalDateTime.now().withNano(0);
@@ -414,9 +404,6 @@ class ImageServiceTest {
     @Test
     void testSortAllImagesShouldReturnImageResponseListByASC() {
         // given
-        // same as before for these two lines
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
         String order = "ASC";
 
@@ -435,10 +422,6 @@ class ImageServiceTest {
     @Test
     void testSortAllImagesShouldReturnImageResponseListByDESC() {
         // given
-        // same as before for these two lines
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
         String order = "DESC";
 
         // when
