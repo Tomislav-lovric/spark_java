@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/api/v1/image")
@@ -49,7 +49,7 @@ public class ImageController {
             @RequestPart MultipartFile file,
             @RequestHeader("Authorization") String bearerToken
             ) throws IOException {
-        return ResponseEntity.ok(service.uploadImage(file, bearerToken));
+        return new ResponseEntity<>(service.uploadImage(file, bearerToken), HttpStatus.CREATED);
     }
 
     @PostMapping("/upload_multi")
@@ -57,15 +57,15 @@ public class ImageController {
             @RequestPart List<MultipartFile> files,
             @RequestHeader("Authorization") String bearerToken
     ) {
-        return ResponseEntity.ok(files.stream()
+        List<ImageResponse> imageResponseList = files.stream()
                 .map(file -> {
                     try {
                         return service.uploadImage(file, bearerToken);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                })
-                .collect(Collectors.toList()));
+                }).toList();
+        return new ResponseEntity<>(imageResponseList, HttpStatus.CREATED);
     }
 
     @PutMapping("/{filename}")

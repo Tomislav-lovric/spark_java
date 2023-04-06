@@ -76,14 +76,14 @@ class ImageServiceTest {
                 .build();
 
         file = new MockMultipartFile(
-                "Earth",
+                "file",
                 "Earth.gif",
                 "image/gif",
                 image.getData()
         );
 
         newFile = new MockMultipartFile(
-                "Earth2",
+                "file",
                 "Earth2.gif",
                 "image/gif",
                 image.getData()

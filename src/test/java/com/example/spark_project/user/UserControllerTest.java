@@ -41,7 +41,6 @@ class UserControllerTest {
 
     private final String jwtToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
-
     private static final String END_POINT_PATH = "/api/v1/user";
 
     @BeforeEach
