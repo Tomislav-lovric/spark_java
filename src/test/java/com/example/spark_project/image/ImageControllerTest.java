@@ -3,6 +3,7 @@ package com.example.spark_project.image;
 import com.example.spark_project.security.JwtService;
 import com.example.spark_project.user.Role;
 import com.example.spark_project.user.User;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -147,12 +150,56 @@ class ImageControllerTest {
     }
 
     @Test
-    void uploadMulti() {
+    void uploadMulti() throws Exception {
         // given
+        MockMultipartFile file1 = new MockMultipartFile(
+                "files",
+                "Earth.gif",
+                "image/gif",
+                new byte[] {0x00, 0x01, 0x02, 0x03}
+        );
+        MockMultipartFile file2 = new MockMultipartFile(
+                "files",
+                "Earth2.gif",
+                "image/gif",
+                new byte[] {0x00, 0x01, 0x02, 0x03}
+        );
+
+        String imageLink1 = "http://localhost/api/v1/image/" + file1.getOriginalFilename();
+        String imageLink2 = "http://localhost/api/v1/image/" + file2.getOriginalFilename();
+
+        ImageResponse imageResponse1 = ImageResponse.builder()
+                .filename(file1.getOriginalFilename())
+                .size(file1.getSize())
+                .createdAt(LocalDateTime.now().withNano(0))
+                .imageLink(imageLink1)
+                .build();
+
+        ImageResponse imageResponse2 = ImageResponse.builder()
+                .filename(file2.getOriginalFilename())
+                .size(file2.getSize())
+                .createdAt(LocalDateTime.now().withNano(0))
+                .imageLink(imageLink2)
+                .build();
+
+        List<ImageResponse> expectedImageResponseList = Arrays.asList(imageResponse, imageResponse2);
 
         // when
+        when(imageService.uploadImage(any(MockMultipartFile.class), eq(jwtToken)))
+                .thenReturn(imageResponse1, imageResponse2);
 
         // then
+        MvcResult result = mockMvc.perform(multipart(END_POINT_PATH + "/upload_multi")
+                .file("files", file.getBytes())
+                .file("files", file2.getBytes())
+                .header("Authorization", jwtToken))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String responseJson = result.getResponse().getContentAsString();
+        List<ImageResponse> actualImageResponseList = objectMapper.readValue(responseJson, new TypeReference<List<ImageResponse>>() {});
+        assertThat(expectedImageResponseList).isEqualTo(actualImageResponseList);
+
     }
 
     @Test
