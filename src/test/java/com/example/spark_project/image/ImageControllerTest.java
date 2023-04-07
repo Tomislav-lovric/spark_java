@@ -51,6 +51,7 @@ class ImageControllerTest {
     private ImageResponse imageResponse;
     private Image image;
     private String imageLink;
+    private ImageResponse imageResponse2;
 
     @BeforeEach
     void setUp() {
@@ -88,6 +89,24 @@ class ImageControllerTest {
                 .size(image.getSize())
                 .createdAt(image.getCreatedAt())
                 .imageLink(imageLink)
+                .build();
+
+        Image image2 = Image.builder()
+                .filename("Earth2.gif")
+                .mimeType("image/gif")
+                .data(new byte[] {0x00, 0x01, 0x02, 0x03})
+                .size(4L)
+                .createdAt(LocalDateTime.now().withNano(0))
+                .user(user)
+                .build();
+
+        String imageLink2 = "http://localhost/api/v1/image/" + image2.getFilename();
+
+        imageResponse2 = ImageResponse.builder()
+                .filename(image2.getFilename())
+                .size(image2.getSize())
+                .createdAt(image2.getCreatedAt())
+                .imageLink(imageLink2)
                 .build();
     }
 
@@ -261,20 +280,49 @@ class ImageControllerTest {
     }
 
     @Test
-    void getImagesByDateTimeAndPage() {
+    void getImagesByDateTimeAndPage() throws Exception {
         // given
+        LocalDateTime date = LocalDateTime.now().withNano(0);
+        int page = 0;
+        String order = "ASC";
+
+        List<ImageResponse> expectedImageResponseList = Arrays.asList(imageResponse, imageResponse2);
 
         // when
+        when(imageService.getImagesByDateTimeAndPageAndSort(date, page, jwtToken, order))
+                .thenReturn(expectedImageResponseList);
 
         // then
+        MvcResult result = mockMvc.perform(get(END_POINT_PATH + "/")
+                .header("Authorization", jwtToken)
+                .param("date", date.toString())
+                .param("page", String.valueOf(page))
+                .param("order", order))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseJson = result.getResponse().getContentAsString();
+        List<ImageResponse> actualImageResponseList = objectMapper.readValue(responseJson, new TypeReference<List<ImageResponse>>() {});
+        assertThat(expectedImageResponseList).isEqualTo(actualImageResponseList);
     }
 
     @Test
-    void sortAllImages() {
+    void sortAllImages() throws Exception {
         // given
+        String order = "ASC";
+        List<ImageResponse> expectedImageResponseList = Arrays.asList(imageResponse, imageResponse2);
 
         // when
+        when(imageService.sortAllImages(order, jwtToken)).thenReturn(expectedImageResponseList);
 
         // then
+        MvcResult result = mockMvc.perform(get(END_POINT_PATH + "/sort/{order}", order)
+                .header("Authorization", jwtToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseJson = result.getResponse().getContentAsString();
+        List<ImageResponse> actualImageResponseList = objectMapper.readValue(responseJson, new TypeReference<List<ImageResponse>>() {});
+        assertThat(expectedImageResponseList).isEqualTo(actualImageResponseList);
     }
 }
