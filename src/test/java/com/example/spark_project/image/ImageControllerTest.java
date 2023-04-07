@@ -97,7 +97,7 @@ class ImageControllerTest {
         String filename = "Earth.gif";
 
         // when
-        when(imageService.getImage(anyString(), eq(jwtToken))).thenReturn(image);
+        when(imageService.getImage(filename, jwtToken)).thenReturn(image);
 
         // then
         MvcResult mvcResult = mockMvc.perform(get(END_POINT_PATH + "/{filename}", filename)
@@ -117,7 +117,7 @@ class ImageControllerTest {
         String filename = "Earth.gif";
 
         // when
-        when(imageService.getImage(anyString(), eq(jwtToken))).thenReturn(image);
+        when(imageService.getImage(filename, jwtToken)).thenReturn(image);
 
         // then
         MvcResult mvcResult = mockMvc.perform(get(END_POINT_PATH + "/search")
@@ -135,7 +135,7 @@ class ImageControllerTest {
     @Test
     void uploadImage() throws Exception {
         // when
-        when(imageService.uploadImage(any(MockMultipartFile.class), eq(jwtToken))).thenReturn(imageResponse);
+        when(imageService.uploadImage(file, jwtToken)).thenReturn(imageResponse);
 
         // then
         mockMvc.perform(multipart(END_POINT_PATH + "/upload")
@@ -190,7 +190,7 @@ class ImageControllerTest {
 
         // then
         MvcResult result = mockMvc.perform(multipart(END_POINT_PATH + "/upload_multi")
-                .file("files", file.getBytes())
+                .file("files", file1.getBytes())
                 .file("files", file2.getBytes())
                 .header("Authorization", jwtToken))
                 .andExpect(status().isCreated())
@@ -203,12 +203,44 @@ class ImageControllerTest {
     }
 
     @Test
-    void changeImage() {
+    void changeImage() throws Exception {
         // given
+        String filename = "Earth.gif";
+        LocalDateTime createdAt = LocalDateTime.now().withNano(0);
+
+        MockMultipartFile file2 = new MockMultipartFile(
+                "file",
+                "Earth2.gif",
+                "image/gif",
+                new byte[] {0x00, 0x01, 0x02, 0x03}
+        );
+
+        String imageLink2 = "http://localhost/api/v1/image/" + file2.getOriginalFilename();
+
+        ImageResponse imageResponse2 = ImageResponse.builder()
+                .filename(file2.getOriginalFilename())
+                .size(file2.getSize())
+                .createdAt(createdAt)
+                .imageLink(imageLink2)
+                .build();
 
         // when
+        when(imageService.changeImage(filename, file2, jwtToken)).thenReturn(imageResponse2);
 
         // then
+        mockMvc.perform(multipart(END_POINT_PATH + "/{filename}", filename)
+                .file(file2)
+                .with(request -> {
+                    request.setMethod("PUT");
+                    return request;
+                })
+                .contentType(MediaType.IMAGE_GIF)
+                .header("Authorization", jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.filename").value(file2.getOriginalFilename()))
+                .andExpect(jsonPath("$.size").value(file2.getSize()))
+                .andExpect(jsonPath("$.createdAt").value(createdAt.toString()))
+                .andExpect(jsonPath("$.imageLink").value(imageLink2));
     }
 
     @Test
