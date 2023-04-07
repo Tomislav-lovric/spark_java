@@ -244,12 +244,20 @@ class ImageControllerTest {
     }
 
     @Test
-    void deleteImage() {
+    void deleteImage() throws Exception {
         // given
+        String filename = "Earth.gif";
+        String msg = filename + " image deleted";
 
         // when
+        when(imageService.deleteImage(filename, jwtToken)).thenReturn(msg);
 
         // then
+        mockMvc.perform(delete(END_POINT_PATH + "/{filename}", filename)
+                .header("Authorization", jwtToken)
+                .param("filename", filename))
+                .andExpect(status().isOk())
+                .andExpect(content().string(msg));
     }
 
     @Test
