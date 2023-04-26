@@ -85,7 +85,7 @@ class UserServiceTest {
         String token = "token";
 
         // when
-        when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
+        when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(jwtService.generateToken(any())).thenReturn(token);
 
@@ -99,7 +99,7 @@ class UserServiceTest {
     @Test
     void testRegisterShouldThrowUserAlreadyExistsException() {
         // when
-        when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
+        when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(true);
 
         // then
         assertThatThrownBy(() -> userService.register(registerRequest))
@@ -114,7 +114,7 @@ class UserServiceTest {
         registerRequest.setRepeatPassword(missMatchPassword);
 
         // when
-        when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
+        when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(false);
 
         // then
         assertThatThrownBy(() -> userService.register(registerRequest))
@@ -129,9 +129,9 @@ class UserServiceTest {
         Authentication authentication = mock(Authentication.class);
 
         // when
-        when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(true);
+        when(userRepository.existsByEmail(loginRequest.getEmail())).thenReturn(true);
         when(authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(registerRequest.getEmail(), registerRequest.getPassword()))
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()))
         ).thenReturn(authentication);
         when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(user));
         when(jwtService.generateToken(any())).thenReturn(token);
@@ -143,14 +143,14 @@ class UserServiceTest {
         assertThat(response.getToken()).isEqualTo(token);
 
         verify(authenticationManager).authenticate(
-                new UsernamePasswordAuthenticationToken(registerRequest.getEmail(), registerRequest.getPassword())
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
     }
 
     @Test
     void testLoginShouldThrowUsernameNotFoundException() {
         // when
-        when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(false);
+        when(userRepository.existsByEmail(loginRequest.getEmail())).thenReturn(false);
 
         // then
         assertThatThrownBy(() -> userService.login(loginRequest))
