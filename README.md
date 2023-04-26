@@ -35,8 +35,6 @@ There is postman collection file in main application folder which you can import
 
 You need to add your own gmail adress and app password to be able to send emails to the user, you need to add them in application.yml, the lines where you need to add them are commented so they are easy to spot. (for how to create app password follow these guidlines https://support.google.com/accounts/answer/185833?hl=en#:%7E:text=An%20App%20Password%20is%20a,2%2DStep%20Verification%20turned%20on.).
 
-## TODO Unit Tests
-
 ## Authors
 
 * **Tomislav Lovrić** - [spark-project](https://github.com/Tomislav-lovric/spark-java)
